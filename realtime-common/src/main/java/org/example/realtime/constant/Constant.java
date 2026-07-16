@@ -8,6 +8,10 @@ public class Constant {
     public static final String TOPIC_DWD_INTERACTION_COMMON_INFO = "dwd_interaction_common_info";
     public static final String TOPIC_DWD_TRADE_CART_ADD = "dwd_trade_cart_add";
     public static final String TOPIC_DWD_TRADE_ORDER_DETAIL = "dwd_trade_order_detail";
+    public static final String TOPIC_DWD_TRADE_ORDER_CANCEL_DETAIL = "dwd_trade_order_cancel_detail";
+    public static final String TOPIC_DWD_TRADE_ORDER_PAY_SUC_DETAIL = "dwd_trade_order_pay_suc_detail";
+    public static final String TOPIC_DWD_TRADE_ORDER_REFUND = "dwd_trade_order_refund";
+    public static final String TOPIC_DWD_BASE_DB = "dwd_base_db";
 
 
     public static final String MYSQL_HOST = "bigdata1";
@@ -18,6 +22,7 @@ public class Constant {
     public static final String MYSQL_URL = "jdbc:mysql://bigdata1:3306?useSSL=false&characterEncoding=utf8";
     public static final String MYSQL_DIM_PROCESS_DATABASE = "gmall_config";
     public static final String MYSQL_DIM_PROCESS_TABLE = "table_process_dim";
+    public static final String MYSQL_DWD_PROCESS_TABLE = "table_process_dwd";
 
     public static final String HBASE_NAMESPACE = "gmall";
     public static final String HBASE_ZOOKEEPER_QUORUM = "bigdata1,bigdata2,bigdata3";

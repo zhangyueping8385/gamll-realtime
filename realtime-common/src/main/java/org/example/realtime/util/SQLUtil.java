@@ -47,7 +47,9 @@ public class SQLUtil {
                 "  `type` STRING,\n" +             // 变更时间戳
                 "  `data` map<STRING,STRING>,\n" +  // 变更后的数据
                 "  `old` map<STRING,STRING>,\n" +   // 变更前的数据（UPDATE时才有值）
-                "   proc_time as PROCTIME()" +      // 处理时间字段
+                "   proc_time as PROCTIME()," +
+                "   row_time as to_timestamp_ltz(ts,0)," +
+                "   WATERMARK FOR row_time AS row_time - INTERVAL '5' SECOND" +      // 事件时间字段，水印延迟5秒
                 ")" + getKafkaSourceSQL(Constant.TOPIC_DB, groupID);
     }
 
@@ -64,5 +66,14 @@ public class SQLUtil {
                 ")";
     }
 
+    public static String getUpsertKafkaSinkSQl(String topicName){
+        return " WITH (\n" +
+                "  'connector' = 'upsert-kafka',\n" +
+                "  'topic' = '" + topicName + "',\n" +
+                "  'properties.bootstrap.servers' = '" + Constant.KAFKA_BROKERS + "',\n" +
+                "  'key.format' = 'json',\n" +
+                "  'value.format' = 'json'\n" +
+                ")";
+    }
 
 }
