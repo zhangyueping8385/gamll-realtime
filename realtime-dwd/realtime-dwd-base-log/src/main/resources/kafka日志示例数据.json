@@ -1,0 +1,193 @@
+[
+  {
+    "actions": [
+      {
+        "action_id": "cart_minus_num",
+        "item": "17",
+        "item_type": "sku_id",
+        "ts": 1783989861964
+      }
+    ],
+    "common": {
+      "ar": "230000",
+      "ba": "iPhone",
+      "ch": "Appstore",
+      "is_new": "1",
+      "md": "iPhone 8",
+      "mid": "mid_132706",
+      "os": "iOS 13.2.3",
+      "uid": "10",
+      "vc": "v2.1.134"
+    },
+    "page": {
+      "during_time": 11929,
+      "last_page_id": "good_detail",
+      "page_id": "cart"
+    },
+    "ts": 1783989856000
+  },
+  {
+    "common": {
+      "ar": "500000",
+      "ba": "iPhone",
+      "ch": "Appstore",
+      "is_new": "0",
+      "md": "iPhone Xs",
+      "mid": "mid_21027",
+      "os": "iOS 13.3.1",
+      "uid": "7",
+      "vc": "v2.1.134"
+    },
+    "start": {
+      "entry": "icon",
+      "loading_time": 14960,
+      "open_ad_id": 2,
+      "open_ad_ms": 7940,
+      "open_ad_skip_ms": 4562
+    },
+    "ts": 1783989843000
+  },
+  {
+    "common": {
+      "ar": "110000",
+      "ba": "Xiaomi",
+      "ch": "xiaomi",
+      "is_new": "0",
+      "md": "Xiaomi 9",
+      "mid": "mid_300231",
+      "os": "Android 11.0",
+      "uid": "95",
+      "vc": "v2.1.134"
+    },
+    "displays": [
+      {
+        "display_type": "activity",
+        "item": "2",
+        "item_type": "activity_id",
+        "order": 1,
+        "pos_id": 3
+      },
+      {
+        "display_type": "promotion",
+        "item": "30",
+        "item_type": "sku_id",
+        "order": 2,
+        "pos_id": 5
+      },
+      {
+        "display_type": "promotion",
+        "item": "20",
+        "item_type": "sku_id",
+        "order": 3,
+        "pos_id": 4
+      },
+      {
+        "display_type": "promotion",
+        "item": "28",
+        "item_type": "sku_id",
+        "order": 4,
+        "pos_id": 4
+      },
+      {
+        "display_type": "query",
+        "item": "10",
+        "item_type": "sku_id",
+        "order": 5,
+        "pos_id": 1
+      },
+      {
+        "display_type": "query",
+        "item": "21",
+        "item_type": "sku_id",
+        "order": 6,
+        "pos_id": 5
+      },
+      {
+        "display_type": "recommend",
+        "item": "15",
+        "item_type": "sku_id",
+        "order": 7,
+        "pos_id": 1
+      },
+      {
+        "display_type": "promotion",
+        "item": "28",
+        "item_type": "sku_id",
+        "order": 8,
+        "pos_id": 4
+      },
+      {
+        "display_type": "query",
+        "item": "31",
+        "item_type": "sku_id",
+        "order": 9,
+        "pos_id": 4
+      },
+      {
+        "display_type": "promotion",
+        "item": "3",
+        "item_type": "sku_id",
+        "order": 10,
+        "pos_id": 1
+      },
+      {
+        "display_type": "query",
+        "item": "5",
+        "item_type": "sku_id",
+        "order": 11,
+        "pos_id": 4
+      }
+    ],
+    "page": {
+      "during_time": 13169,
+      "page_id": "home"
+    },
+    "ts": 1783989853000
+  },
+  {
+    "common": {
+      "ar": "420000",
+      "uid": "63",
+      "os": "iOS 13.3.1",
+      "ch": "Appstore",
+      "is_new": "0",
+      "md": "iPhone Xs",
+      "mid": "mid_390273",
+      "vc": "v2.1.132",
+      "ba": "iPhone"
+    },
+    "start": {
+      "entry": "icon",
+      "open_ad_skip_ms": 0,
+      "open_ad_ms": 1068,
+      "loading_time": 3281,
+      "open_ad_id": 8
+    },
+    "ts": 1783989858000
+  },
+  {
+    "common": {
+      "ar": "420000",
+      "uid": "41",
+      "os": "Android 10.0",
+      "ch": "xiaomi",
+      "is_new": "0",
+      "md": "Xiaomi 9",
+      "mid": "mid_64504",
+      "vc": "v2.1.134",
+      "ba": "Xiaomi"
+    },
+    "err": {
+      "msg": " Exception in thread \\  java.net.SocketTimeoutException\\n \\tat com.atgugu.gmall2020.mock.log.bean.AppError.main(AppError.java:xxxxxx)",
+      "error_code": 3524
+    },
+    "page": {
+      "page_id": "payment",
+      "item": "34,29",
+      "during_time": 19798,
+      "item_type": "sku_ids",
+      "last_page_id": "trade"
+    },
+    "ts": 1783900193000
+  }
+]
