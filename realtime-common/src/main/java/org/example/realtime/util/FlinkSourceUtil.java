@@ -16,6 +16,10 @@ import java.nio.charset.StandardCharsets;
 public class FlinkSourceUtil {
 
     public static KafkaSource<String> getKafkaSource(String topicName,String groupID){
+        /**
+         * 创建 Kafka 源表
+         * 该表用于消费Kafka主题中的数据
+         */
         return KafkaSource.<String>builder()
                 .setBootstrapServers(Constant.KAFKA_BROKERS)
                 .setTopics(topicName)
@@ -43,6 +47,13 @@ public class FlinkSourceUtil {
                 .build();
     }
 
+    /**
+     * 创建 MySQL 源表
+     * 该表用于消费MySQL数据库变更事件（binlog）
+     * @param databaseName 数据库名称
+     * @param tableName 表名称
+     * @return
+     */
     public static MySqlSource<String> getMysqlSource(String databaseName,String tableName){
         return MySqlSource.<String>builder()
                 .hostname(Constant.MYSQL_HOST)

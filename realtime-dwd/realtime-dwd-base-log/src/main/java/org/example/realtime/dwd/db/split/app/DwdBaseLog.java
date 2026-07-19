@@ -215,7 +215,7 @@ public class DwdBaseLog extends BaseAPP {
                     }
                 } catch (Exception e) {
                     // 修复日志：打印原始数据 + 完整异常堆栈，定位真实报错
-                    Log.info("脏数据过滤，原始数据：{}，异常信息：", value, e);
+                    Log.info("脏数据过滤，原始数据：", value);
                 }
             }
         });

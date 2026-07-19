@@ -2,6 +2,8 @@ package org.example.realtime.util;
 
 import org.example.realtime.constant.Constant;
 
+import static org.example.realtime.constant.Constant.DORIS_DATABASE;
+
 /**
  * SQL工具类，用于生成Flink SQL语句
  * 提供Kafka源表相关的DDL生成方法
@@ -53,6 +55,13 @@ public class SQLUtil {
                 ")" + getKafkaSourceSQL(Constant.TOPIC_DB, groupID);
     }
 
+    /**
+     * 生成Kafka sink表的WITH配置子句
+     * 该表用于将数据写入Kafka主题
+     *
+     * @param topicName Kafka主题名称
+     * @return
+     */
     public static String getKafkaSinkSQL(String topicName){
         return "WITH (\n" +
                 // 指定使用Kafka连接器
@@ -66,6 +75,14 @@ public class SQLUtil {
                 ")";
     }
 
+    /**
+     * 生成Kafka sink表的WITH配置子句
+     * 该表用于将数据写入Kafka主题
+     * 支持数据的更新（upsert）
+     *
+     * @param topicName Kafka主题名称
+     * @return
+     */
     public static String getUpsertKafkaSinkSQl(String topicName){
         return " WITH (\n" +
                 "  'connector' = 'upsert-kafka',\n" +
@@ -73,6 +90,23 @@ public class SQLUtil {
                 "  'properties.bootstrap.servers' = '" + Constant.KAFKA_BROKERS + "',\n" +
                 "  'key.format' = 'json',\n" +
                 "  'value.format' = 'json'\n" +
+                ")";
+    }
+
+    /**
+     * 生成Doris sink表的WITH配置子句
+     * 该表用于将数据写入Doris表
+     *
+     * @param topicName Doris表名称
+     * @return
+     */
+    public static String getDorisSinkSQL(String topicName){
+        return "WITH (\n" +
+                "'connector' = 'doris',\n" +
+                "'fenodes' = '" + Constant.DORIS_FENODES + "',\n" +
+                "'table.identifier' = '" + DORIS_DATABASE + "." + Constant.DORIS_DWS_TRAFFIC_SOURCE_KEYWORD_PAGE_VIEW_WINDOW + "',\n" +
+                "'username' = '" + Constant.DORIS_USERNAME + "',\n" +
+                "'password' = '" + Constant.DORIS_PASSWORD + "'\n" +
                 ")";
     }
 

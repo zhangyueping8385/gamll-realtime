@@ -10,6 +10,12 @@ import java.util.List;
 import static org.example.realtime.constant.Constant.*;
 
 public class JdbcUtil {
+    /**
+     * 获取 MySQL 数据库连接
+     * @return 连接对象
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static Connection getMysqlConnection() throws ClassNotFoundException, SQLException {
         // 获取 jdbc 连接
         // 1. 加载驱动

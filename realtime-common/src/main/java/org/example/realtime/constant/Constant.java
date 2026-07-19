@@ -14,6 +14,15 @@ public class Constant {
     public static final String TOPIC_DWD_BASE_DB = "dwd_base_db";
 
 
+    public static final String DORIS_FENODES = "bigdata1:8030";
+    public static final String DORIS_DATABASE = "gmall_realtime";
+    public static final String DORIS_DWS_TRAFFIC_SOURCE_KEYWORD_PAGE_VIEW_WINDOW = "dws_traffic_source_keyword_page_view_window";
+    public static final String DORIS_DWS_TRAFFIC_VC_CH_AR_IS_NEW_PAGE_VIEW_WINDOW = "dws_traffic_vc_ch_ar_is_new_page_view_window";
+    public static final String DORIS_USERNAME = "root";
+    public static final String DORIS_PASSWORD = "";
+
+
+
     public static final String MYSQL_HOST = "bigdata1";
     public static final int MYSQL_PORT = 3306;
     public static final String MYSQL_USERNAME = "root";
