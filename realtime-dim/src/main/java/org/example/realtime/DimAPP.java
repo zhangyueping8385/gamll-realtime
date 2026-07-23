@@ -66,7 +66,7 @@ public class DimAPP extends BaseAPP {
         SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> mappedDataStream = mapDataStream(connectionStream).setParallelism(1);
 
         // 7. 写出到HBase
-        mappedDataStream.print();
+//        mappedDataStream.print();
         mappedDataStream.addSink(new DimBaseSinkFunction()).setParallelism(1);
 
     }
@@ -162,16 +162,16 @@ public class DimAPP extends BaseAPP {
                     String database = jsonObj.getString("database");
                     String type = jsonObj.getString("type");
                     JSONObject data = jsonObj.getJSONObject("data");
-                    System.out.println("ETL收到: database=" + database + ", table=" + jsonObj.getString("table") + ", type=" + type);
+//                    System.out.println("ETL收到: database=" + database + ", table=" + jsonObj.getString("table") + ", type=" + type);
                     
                     if ("gmall".equals(database) && data != null) {
                         if ("insert".equals(type) || "update".equals(type) || "delete".equals(type) || "bootstrap-insert".equals(type)) {
-                            System.out.println("ETL通过: " + jsonObj.getString("table"));
+//                            System.out.println("ETL通过: " + jsonObj.getString("table"));
                             collector.collect(jsonObj);
                         }
                     }
                 } catch (Exception e) {
-                    System.err.println("ETL解析失败: " + e.getMessage());
+//                    System.err.println("ETL解析失败: " + e.getMessage());
                     e.printStackTrace();
                 }
             }

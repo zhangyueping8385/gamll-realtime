@@ -4,6 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+/**
+ * 数据仓库表处理配置
+ * 用于配置数据仓库表的处理逻辑，包括数据表的来源、目标、输出字段、配置表操作类型等
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

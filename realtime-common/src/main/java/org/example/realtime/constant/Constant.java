@@ -12,12 +12,21 @@ public class Constant {
     public static final String TOPIC_DWD_TRADE_ORDER_PAY_SUC_DETAIL = "dwd_trade_order_pay_suc_detail";
     public static final String TOPIC_DWD_TRADE_ORDER_REFUND = "dwd_trade_order_refund";
     public static final String TOPIC_DWD_BASE_DB = "dwd_base_db";
+    public static final String TOPIC_DWD_USER_REGISTER = "dwd_user_register";
 
 
     public static final String DORIS_FENODES = "bigdata1:8030";
     public static final String DORIS_DATABASE = "gmall_realtime";
     public static final String DORIS_DWS_TRAFFIC_SOURCE_KEYWORD_PAGE_VIEW_WINDOW = "dws_traffic_source_keyword_page_view_window";
     public static final String DORIS_DWS_TRAFFIC_VC_CH_AR_IS_NEW_PAGE_VIEW_WINDOW = "dws_traffic_vc_ch_ar_is_new_page_view_window";
+    public static final String DORIS_DWS_TRAFFIC_HOME_DETAIL_PAGE_VIEW_WINDOW = "dws_traffic_home_detail_page_view_window";
+    public static final String DORIS_DWS_USER_USER_LOGIN_WINDOW = "dws_user_user_login_window";
+    public static final String DORIS_DWS_USER_USER_REGISTER_WINDOW = "dws_user_user_register_window";
+    public static final String DORIS_DWS_TRADE_CART_ADD_UU_WINDOW = "dws_trade_cart_add_uu_window";
+    public static final String DORIS_DWS_TRADE_PAYMENT_SUC_WINDOW = "dws_trade_payment_suc_window";
+    public static final String DORIS_DWS_TRADE_ORDER_WINDOW = "dws_trade_order_window";
+    public static final String DORIS_DWS_TRADE_SKU_ORDER_WINDOW_SYNC_CACHE = "dws_trade_sku_order_window";
+    public static final String DORIS_DWS_TRADE_PROVINCE_ORDER_WINDOW = "dws_trade_province_order_window";
     public static final String DORIS_USERNAME = "root";
     public static final String DORIS_PASSWORD = "";
 
@@ -34,6 +43,12 @@ public class Constant {
     public static final String MYSQL_DWD_PROCESS_TABLE = "table_process_dwd";
 
     public static final String HBASE_NAMESPACE = "gmall";
+    public static final String HBASE_TABLE_DIM_SKU_INFO = "dim_sku_info";
+    public static final String HBASE_TABLE_DIM_SPU_INFO = "dim_spu_info";
+    public static final String HBASE_TABLE_DIM_BASE_CATEGORY3 = "dim_base_category3";
+    public static final String HBASE_TABLE_DIM_BASE_CATEGORY2 = "dim_base_category2";
+    public static final String HBASE_TABLE_DIM_BASE_CATEGORY1 = "dim_base_category1";
+    public static final String HBASE_TABLE_DIM_BASE_TRADEMARK = "dim_base_trademark";
     public static final String HBASE_ZOOKEEPER_QUORUM = "bigdata1,bigdata2,bigdata3";
     public static final String HBASE_ZOOKEEPER_PROPERTY_CLIENTPORT = "2181";
     public static final String HBASE_ZOOKEEPER_AND_PORT_QUORUM = "bigdata1:2181";
@@ -44,4 +59,9 @@ public class Constant {
     public static final String TOPIC_DWD_TRAFFIC_PAGE = "dwd_traffic_page";
     public static final String TOPIC_DWD_TRAFFIC_ACTION = "dwd_traffic_action";
     public static final String TOPIC_DWD_TRAFFIC_DISPLAY = "dwd_traffic_display";
+
+
+    public static final Integer REDIS_TWO_DAY_SECONDS = 17800;
+    public static final String REDIS_HOST = "bigdata1";
+    public static final Integer REDIS_PORT = 6379;
 }

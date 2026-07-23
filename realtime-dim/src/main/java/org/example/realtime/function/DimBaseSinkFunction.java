@@ -9,20 +9,25 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.example.realtime.bean.TableProcessDim;
 import org.example.realtime.constant.Constant;
 import org.example.realtime.util.HbaseUtil;
+import org.example.realtime.util.RedisUtil;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 
 public class DimBaseSinkFunction extends RichSinkFunction<Tuple2<JSONObject, TableProcessDim>> {
     public Connection connection;
+    Jedis jedis;
 
     @Override
     public void open(Configuration parameters) throws Exception {
         connection = HbaseUtil.getConnection();
+        jedis = RedisUtil.getJedis();
     }
 
     @Override
     public void close() throws Exception {
         HbaseUtil.closeConnection(connection);
+        RedisUtil.closeJedis(jedis);
     }
 
     @Override
@@ -37,6 +42,13 @@ public class DimBaseSinkFunction extends RichSinkFunction<Tuple2<JSONObject, Tab
         } else {
             put(data, dim);
         }
+
+        // 判断redis中的缓存是否发生变化
+        if ("delete".equals(type) || "update".equals(type)) {
+            jedis.del(RedisUtil.getRedisKey(dim.getSinkTable(),data.getString(dim.getSinkRowKey())));
+            System.out.println("删除redis缓存: " + RedisUtil.getRedisKey(dim.getSinkTable(),data.getString(dim.getSinkRowKey())));
+        }
+
     }
 
     private void put(JSONObject data, TableProcessDim dim) {
@@ -44,12 +56,12 @@ public class DimBaseSinkFunction extends RichSinkFunction<Tuple2<JSONObject, Tab
         String sinkRowKeyName = dim.getSinkRowKey();
         String sinkRowKeyValue = data.getString(sinkRowKeyName);
         String sinkFamily = dim.getSinkFamily();
-        System.out.println("准备写入HBase: namespace=gmall, table=" + sinkTable + ", rowKey=" + sinkRowKeyValue);
+//        System.out.println("准备写入HBase: namespace=gmall, table=" + sinkTable + ", rowKey=" + sinkRowKeyValue);
         try {
             HbaseUtil.putCells(connection, Constant.HBASE_NAMESPACE, sinkTable, sinkRowKeyValue, sinkFamily, data);
-            System.out.println("成功写入HBase: table=" + sinkTable + ", rowKey=" + sinkRowKeyValue);
+//            System.out.println("成功写入HBase: table=" + sinkTable + ", rowKey=" + sinkRowKeyValue);
         } catch (IOException e) {
-            System.err.println("写入HBase失败: table=" + sinkTable + ", error=" + e.getMessage());
+//            System.err.println("写入HBase失败: table=" + sinkTable + ", error=" + e.getMessage());
             e.printStackTrace();
         }
     }

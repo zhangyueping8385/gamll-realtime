@@ -71,19 +71,19 @@ public class DwdTradeOrderDetail extends BaseSQLAPP {
         return tableEnv.sqlQuery("select " +
                 "od.id," +
                 "od.order_id," +
-                "oi.user_id," +
                 "od.sku_id," +
-                "od.sku_name," +
-                "oi.province_id," +
                 "act.activity_id," +
                 "act.activity_rule_id," +
                 "cou.coupon_id," +
-                "date_format(od.create_time, 'yyyy-MM-dd') date_id," +  // 年月日
-                "od.create_time," +
+                "od.sku_name," +
+                "od.order_price," +
                 "od.sku_num," +
+                "od.create_time," +
+                "od.split_total_amount," +
                 "od.split_activity_amount," +
                 "od.split_coupon_amount," +
-                "od.split_total_amount," +
+                "oi.user_id," +
+                "oi.province_id," +
                 "od.ts " +
                 "from order_detail od " +
                 "join order_info oi on od.order_id=oi.id " +
