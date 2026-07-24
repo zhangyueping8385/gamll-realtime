@@ -13,7 +13,6 @@
         <module>realtime-dim</module>
         <module>realtime-dwd</module>
         <module>realtime-dws</module>
-        <module>realtime-dws/realtime-dws-traffic-source-keyword-page-view-window</module>
     </modules>
 
     <properties>

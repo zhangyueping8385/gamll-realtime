@@ -10,7 +10,7 @@
     <artifactId>realtime-dws-trade-cart-add-uu-window</artifactId>
     <packaging>jar</packaging>
 
-    <name>12.6.1realtime-dws-trade-cart-add-uu-window</name>
+    <name>realtime-dws-trade-cart-add-uu-window</name>
     <url>http://maven.apache.org</url>
 
     <properties>

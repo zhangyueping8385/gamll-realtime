@@ -10,7 +10,7 @@
     <artifactId>realtime-dws-trade-order-window</artifactId>
     <packaging>jar</packaging>
 
-    <name>12.8.1realtime-dws-trade-order-window</name>
+    <name>realtime-dws-trade-order-window</name>
     <url>http://maven.apache.org</url>
 
     <properties>
