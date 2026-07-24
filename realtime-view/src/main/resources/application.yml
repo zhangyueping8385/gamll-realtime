@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: realtime-view
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
+
+# Doris配置
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,text/css,application/javascript
+    min-response-size: 1024
+  tomcat:
+    connection-timeout: 30000
+
+doris:
+  fenodes: ${DORIS_FENODES:bigdata1:9030}
+  database: ${DORIS_DATABASE:gmall_realtime}
+  username: ${DORIS_USERNAME:root}
+  password: ${DORIS_PASSWORD:}
+
+# 日志配置
+logging:
+  level:
+    org.example.realtime.view: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/realtime-view.log
