@@ -10,7 +10,7 @@
     <artifactId>realtime-dws-user-user-login-window</artifactId>
     <packaging>jar</packaging>
 
-    <name>12.4.1realtime-dws-user-user-login-window</name>
+    <name>realtime-dws-user-user-login-window</name>
     <url>http://maven.apache.org</url>
 
     <properties>
