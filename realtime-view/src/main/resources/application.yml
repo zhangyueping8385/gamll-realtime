@@ -24,6 +24,20 @@ doris:
   username: ${DORIS_USERNAME:root}
   password: ${DORIS_PASSWORD:}
 
+# AI 归因默认关闭。endpoint 应配置为兼容 Chat Completions 的完整接口地址，密钥只通过环境变量提供。
+ai:
+  attribution:
+    enabled: ${AI_ATTRIBUTION_ENABLED:false}
+    endpoint: ${AI_ATTRIBUTION_ENDPOINT:}
+    api-key: ${AI_ATTRIBUTION_API_KEY:}
+    model: ${AI_ATTRIBUTION_MODEL:}
+    fixed-delay-ms: ${AI_ATTRIBUTION_FIXED_DELAY_MS:60000}
+    batch-size: ${AI_ATTRIBUTION_BATCH_SIZE:10}
+    max-attempts: ${AI_ATTRIBUTION_MAX_ATTEMPTS:3}
+    connect-timeout-ms: ${AI_ATTRIBUTION_CONNECT_TIMEOUT_MS:5000}
+    read-timeout-ms: ${AI_ATTRIBUTION_READ_TIMEOUT_MS:30000}
+    json-response-format-enabled: ${AI_ATTRIBUTION_JSON_RESPONSE_FORMAT_ENABLED:true}
+
 # 日志配置
 logging:
   level:

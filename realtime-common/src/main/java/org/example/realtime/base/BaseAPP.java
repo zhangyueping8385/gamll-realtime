@@ -30,23 +30,23 @@ public abstract class BaseAPP {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         // 设置并行度
-//        env.setParallelism(parallelism);
-//        // 设置状态后端
-//        env.setStateBackend(new HashMapStateBackend());
-//        // 开启checkpoint
-//        env.enableCheckpointing(5000);
-//        // 设置checkpoint精准一次
-//        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-//        // 设置checkpoint存储位置
-//        env.getCheckpointConfig().setCheckpointStorage("hdfs://bigdata1:9000/checkpoint/" + ckAndGroupID);
-//        // checkpoint 并发数量
-//        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-//        // checkpoint 之间最小间隔
-//        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
-//        // checkpoint 超时时间
-//        env.getCheckpointConfig().setCheckpointTimeout(10000);
-//        // job取消时checkpoint的保留策略
-//        env.getCheckpointConfig().setExternalizedCheckpointCleanup(RETAIN_ON_CANCELLATION);
+        env.setParallelism(parallelism);
+        // 设置状态后端
+        env.setStateBackend(new HashMapStateBackend());
+        // 开启checkpoint
+        env.enableCheckpointing(5000);
+        // 设置checkpoint精准一次
+        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        // 设置checkpoint存储位置
+        env.getCheckpointConfig().setCheckpointStorage("hdfs://bigdata1:9000/checkpoint/" + ckAndGroupID);
+        // checkpoint 并发数量
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+        // checkpoint 之间最小间隔
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
+        // checkpoint 超时时间
+        env.getCheckpointConfig().setCheckpointTimeout(10000);
+        // job取消时checkpoint的保留策略
+        env.getCheckpointConfig().setExternalizedCheckpointCleanup(RETAIN_ON_CANCELLATION);
 
         DataStreamSource<String> kafkaSource = env.fromSource(
                 FlinkSourceUtil.getKafkaSource(topicName,ckAndGroupID),

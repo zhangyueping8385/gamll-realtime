@@ -26,6 +26,7 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.example.realtime.base.BaseAPP;
 import org.example.realtime.bean.TrafficPageViewBean;
+import org.example.realtime.bean.MetricWindowEvent;
 import org.example.realtime.constant.Constant;
 import org.example.realtime.function.DorisMapFunction;
 import org.example.realtime.util.DateFormatUtil;
@@ -69,6 +70,29 @@ public class DwsTrafficVcChArIsNewPageViewWindow extends BaseAPP {
 
         //8.写出到doris
         mappedStream.sinkTo(FlinkSinkUtil.getDorisSink(Constant.DORIS_DWS_TRAFFIC_VC_CH_AR_IS_NEW_PAGE_VIEW_WINDOW));
+
+        //9. 按版本、渠道、地区、新老访客维度输出 PV 指标事件。
+        reducedStream
+                .map(bean -> {
+                    JSONObject dimensions = new JSONObject();
+                    dimensions.put("vc", bean.getVc());
+                    dimensions.put("ch", bean.getCh());
+                    dimensions.put("ar", bean.getAr());
+                    dimensions.put("isNew", bean.getIsNew());
+                    return MetricWindowEvent.builder()
+                            .metricCode("page_view_count")
+                            .dimensionKey(bean.getVc() + "|" + bean.getCh() + "|" + bean.getAr() + "|" + bean.getIsNew())
+                            .dimensionsJson(dimensions.toJSONString())
+                            .stt(bean.getStt())
+                            .edt(bean.getEdt())
+                            .curDate(bean.getCur_date())
+                            .value(bean.getPvCt())
+                            .sourceTable(Constant.DORIS_DWS_TRAFFIC_VC_CH_AR_IS_NEW_PAGE_VIEW_WINDOW)
+                            .ts(System.currentTimeMillis())
+                            .build();
+                })
+                .map(JSONObject::toJSONString)
+                .sinkTo(FlinkSinkUtil.getKafkaSink(Constant.TOPIC_DWS_METRIC_WINDOW));
 
 
     }

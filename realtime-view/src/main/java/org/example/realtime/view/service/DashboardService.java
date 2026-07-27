@@ -62,7 +62,13 @@ public class DashboardService {
                 default:
                     throw new IllegalArgumentException("不支持的指标类型: " + metric);
             }
-            String sql = String.format("SELECT stt, %s as value FROM %s WHERE stt >= DATE_SUB(NOW(), INTERVAL %s) ORDER BY stt", valueField, tableName, timeRange);
+            // Anchor the range to the latest warehouse window so historical/demo data still renders.
+            // DWS tables contain multiple dimension rows per window, so aggregate them by stt.
+            String sql = String.format(
+                    "SELECT stt, SUM(%s) as value FROM %s " +
+                            "WHERE stt >= DATE_SUB((SELECT MAX(stt) FROM %s), INTERVAL %s) " +
+                            "GROUP BY stt ORDER BY stt",
+                    valueField, tableName, tableName, timeRange);
             return dorisQueryService.executeQuery(sql);
         } catch (Exception e) {
             log.error("获取趋势数据失败: {}", e.getMessage());

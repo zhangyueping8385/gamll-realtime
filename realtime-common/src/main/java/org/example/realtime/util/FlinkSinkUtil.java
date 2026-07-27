@@ -19,6 +19,8 @@ import javax.annotation.Nullable;
 import java.util.Properties;
 
 public class FlinkSinkUtil {
+    private static final String KAFKA_TRANSACTION_TIMEOUT_MS = "60000";
+
     /**
      * 创建 Kafka 消息接收表
      * 该表用于接收Kafka主题中的数据
@@ -34,7 +36,8 @@ public class FlinkSinkUtil {
                         .build())
                 .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE) // 确保消息Exactly Once
                 .setTransactionalIdPrefix("realtime"+topicName+System.currentTimeMillis()) // 事务ID前缀
-                .setProperty("transaction.commit.interval.ms", 15*60*1000+"") // 事务提交间隔，单位毫秒
+                // 必须小于 Broker 的 transaction.max.timeout.ms，并覆盖 checkpoint 最长耗时。
+                .setProperty("transaction.timeout.ms", KAFKA_TRANSACTION_TIMEOUT_MS)
                 .build();
     }
 

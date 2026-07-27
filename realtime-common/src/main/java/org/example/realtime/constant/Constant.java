@@ -13,6 +13,10 @@ public class Constant {
     public static final String TOPIC_DWD_TRADE_ORDER_REFUND = "dwd_trade_order_refund";
     public static final String TOPIC_DWD_BASE_DB = "dwd_base_db";
     public static final String TOPIC_DWD_USER_REGISTER = "dwd_user_register";
+    /** DWS 任务输出的标准化窗口指标事件。 */
+    public static final String TOPIC_DWS_METRIC_WINDOW = "dws_metric_window";
+    /** 实时异常检测任务输出的告警事件。 */
+    public static final String TOPIC_ADS_METRIC_ANOMALY = "ads_metric_anomaly";
 
 
     public static final String DORIS_FENODES = "bigdata1:8030";
@@ -27,6 +31,8 @@ public class Constant {
     public static final String DORIS_DWS_TRADE_ORDER_WINDOW = "dws_trade_order_window";
     public static final String DORIS_DWS_TRADE_SKU_ORDER_WINDOW_SYNC_CACHE = "dws_trade_sku_order_window";
     public static final String DORIS_DWS_TRADE_PROVINCE_ORDER_WINDOW = "dws_trade_province_order_window";
+    public static final String DORIS_ADS_METRIC_ANOMALY = "ads_metric_anomaly";
+    public static final String DORIS_ADS_METRIC_ANOMALY_ANALYSIS = "ads_metric_anomaly_analysis";
     public static final String DORIS_USERNAME = "root";
     public static final String DORIS_PASSWORD = "";
 

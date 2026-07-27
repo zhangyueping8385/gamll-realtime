@@ -9,6 +9,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.example.realtime.base.BaseAPP;
 import org.example.realtime.bean.TradeOrderBean;
+import org.example.realtime.bean.MetricWindowEvent;
 import org.example.realtime.constant.Constant;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -73,6 +74,22 @@ public class DwsTradeOrderWindow extends BaseAPP {
 
         // 7.写入 Doris
         mappedStream.sinkTo(FlinkSinkUtil.getDorisSink(Constant.DORIS_DWS_TRADE_ORDER_WINDOW));
+
+        // 8. 同步输出统一指标事件，供异常检测任务消费。
+        reduceStream
+                .map(bean -> MetricWindowEvent.builder()
+                        .metricCode("order_user_count")
+                        .dimensionKey("GLOBAL")
+                        .dimensionsJson("{}")
+                        .stt(bean.getStt())
+                        .edt(bean.getEdt())
+                        .curDate(bean.getCurDate())
+                        .value(bean.getOrderUniqueUserCount())
+                        .sourceTable(Constant.DORIS_DWS_TRADE_ORDER_WINDOW)
+                        .ts(System.currentTimeMillis())
+                        .build())
+                .map(JSONObject::toJSONString)
+                .sinkTo(FlinkSinkUtil.getKafkaSink(Constant.TOPIC_DWS_METRIC_WINDOW));
     }
 
     private static SingleOutputStreamOperator<TradeOrderBean> getReduce(SingleOutputStreamOperator<TradeOrderBean> processStream) {

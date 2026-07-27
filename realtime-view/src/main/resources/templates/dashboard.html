@@ -1,684 +1,611 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMALL 实时数据大屏</title>
+    <title>GMALL 智能实时经营驾驶舱</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-
         :root {
-            --bg-color: #0a0e27;
-            --card-bg-color: rgba(16, 22, 58, 0.6);
-            --border-color: #1e3a8a;
-            --title-color: #00d4ff;
-            --kpi-color: #00ff88;
-            --text-color: #e0e6ed;
-            --accent-color: #ff6b6b;
-            --secondary-color: #4ecdc4;
+            --bg: #020b22;
+            --panel: rgba(4, 35, 79, 0.64);
+            --panel-deep: rgba(2, 18, 51, 0.82);
+            --line: rgba(27, 141, 255, 0.55);
+            --line-soft: rgba(41, 175, 255, 0.18);
+            --cyan: #25e6ff;
+            --blue: #168cff;
+            --green: #31f5a6;
+            --yellow: #ffd84a;
+            --red: #ff6074;
+            --text: #d7efff;
+            --muted: #72a8cf;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
+        html, body { margin: 0; width: 100%; height: 100%; }
         body {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: var(--text-color);
-            font-family: 'Orbitron', sans-serif;
-            overflow-x: hidden;
+            color: var(--text);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background:
+                radial-gradient(circle at 50% 36%, rgba(0, 105, 210, 0.24), transparent 34%),
+                linear-gradient(rgba(16, 89, 175, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 89, 175, 0.06) 1px, transparent 1px),
+                linear-gradient(155deg, #020617 0%, var(--bg) 48%, #03112d 100%);
+            background-size: auto, 52px 52px, 52px 52px, auto;
+            overflow: hidden;
         }
 
-        .container-fluid {
-            padding: 1.5rem;
-            min-height: 100vh;
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent 49.8%, rgba(39, 211, 255, 0.09) 50%, transparent 50.2%);
+            opacity: 0.7;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
+        .dashboard-shell {
+            width: min(1920px, 100%);
+            height: 100vh;
+            margin: 0 auto;
+            padding: 10px 14px 14px;
+        }
+
+        .top-header {
+            height: 74px;
             position: relative;
-            padding: 2rem 1rem;
-            background: linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.1) 50%, transparent 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            background:
+                linear-gradient(90deg, transparent 0 18%, rgba(10, 80, 164, 0.28) 32%, rgba(14, 101, 198, 0.52) 50%, rgba(10, 80, 164, 0.28) 68%, transparent 82%),
+                linear-gradient(180deg, rgba(8, 59, 124, 0.45), rgba(3, 19, 50, 0.08));
+            border-top: 1px solid rgba(25, 137, 255, 0.8);
         }
 
-        .header::before {
-            content: '';
+        .top-header::before,
+        .top-header::after {
+            content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
             bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
-            border-radius: 12px;
-            z-index: -1;
+            width: 38%;
+            height: 18px;
+            border-bottom: 2px solid rgba(37, 230, 255, 0.78);
+        }
+        .top-header::before {
+            left: 12%;
+            transform: skewX(42deg);
+            border-left: 2px solid rgba(37, 230, 255, 0.5);
+        }
+        .top-header::after {
+            right: 12%;
+            transform: skewX(-42deg);
+            border-right: 2px solid rgba(37, 230, 255, 0.5);
         }
 
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            color: var(--title-color);
-            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
-            letter-spacing: 2px;
-            position: relative;
+        .title-wrap { text-align: center; z-index: 1; }
+        .title-wrap h1 {
+            margin: 0;
+            color: #f1fbff;
+            font-size: clamp(24px, 2vw, 36px);
+            letter-spacing: 8px;
+            text-shadow: 0 0 12px #149eff, 0 3px 2px #00132f;
         }
+        .title-wrap p { margin: 5px 0 0; color: var(--muted); font-size: 11px; letter-spacing: 4px; }
+        .header-time { position: absolute; right: 22px; top: 17px; color: var(--cyan); font-family: monospace; z-index: 2; }
+        .header-status { position: absolute; left: 22px; top: 17px; color: var(--muted); z-index: 2; }
+        .status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-        .header h1::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--title-color), transparent);
-        }
-
-        .grid-container {
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-auto-rows: minmax(120px, auto);
-            gap: 1.5rem;
+            grid-template-columns: minmax(0, 22fr) minmax(0, 55fr) minmax(0, 23fr);
+            gap: 10px;
+            height: calc(100vh - 108px);
+            min-height: 0;
         }
 
-        .card-panel {
-            background: var(--card-bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
+        .column { display: grid; gap: 10px; min-width: 0; min-height: 0; }
+        .left-column { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+        .center-column { grid-template-rows: 88px minmax(0, 1fr) 232px; }
+        .right-column { grid-template-rows: 62px minmax(0, 0.88fr) minmax(0, 1.12fr); }
+
+        .panel {
             position: relative;
+            min-width: 0;
+            min-height: 0;
             overflow: hidden;
-            transition: all 0.3s ease;
+            border: 1px solid var(--line-soft);
+            background:
+                linear-gradient(135deg, rgba(20, 111, 207, 0.12), transparent 36%),
+                var(--panel);
+            box-shadow: inset 0 0 28px rgba(0, 97, 210, 0.12), 0 0 20px rgba(0, 40, 105, 0.18);
         }
 
-        .card-panel::before {
-            content: '';
+        .panel::before, .panel::after {
+            content: "";
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, var(--title-color), var(--secondary-color), var(--accent-color));
-            border-radius: 16px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            width: 38px; height: 18px;
+            pointer-events: none;
         }
+        .panel::before { left: -1px; top: -1px; border-left: 2px solid var(--cyan); border-top: 2px solid var(--cyan); }
+        .panel::after { right: -1px; bottom: -1px; border-right: 2px solid var(--blue); border-bottom: 2px solid var(--blue); }
 
-        .card-panel:hover::before {
-            opacity: 0.3;
+        .panel-header {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--line-soft);
+            background: linear-gradient(90deg, rgba(0, 126, 255, 0.18), transparent 70%);
         }
+        .panel-title { font-size: 15px; font-weight: 700; letter-spacing: 2px; color: #e9f8ff; }
+        .panel-title::before { content: "◆"; margin-right: 9px; color: var(--cyan); font-size: 10px; text-shadow: 0 0 8px var(--cyan); }
+        .panel-tag { color: var(--muted); font-size: 11px; }
+        .chart { width: 100%; height: calc(100% - 40px); min-height: 0; }
 
-        .card-panel:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            color: var(--title-color);
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-            position: relative;
-        }
-
-        .card-title::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--title-color), transparent);
-        }
-
-        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
         .kpi-card {
-            text-align: center;
-            grid-column: span 2;
             position: relative;
-        }
-
-        .kpi-label {
-            font-size: 1rem;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-            font-weight: 400;
-            opacity: 0.8;
-        }
-
-        .kpi-value {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--kpi-color);
-            text-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
-            margin-top: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { text-shadow: 0 0 15px rgba(0, 255, 136, 0.6); }
-            50% { text-shadow: 0 0 25px rgba(0, 255, 136, 0.8); }
-            100% { text-shadow: 0 0 15px rgba(0, 255, 136, 0.6); }
-        }
-
-        /* Map Card */
-        .map-card {
-            grid-column: 1 / 8;
-            grid-row: 2 / 5;
-        }
-
-        .map-placeholder {
-            height: 600px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        /* Other Chart Cards */
-        .chart-card-1 {
-            grid-column: 8 / 11;
-            grid-row: 2 / 4;
-        }
-
-        .chart-card-2 {
-            grid-column: 11 / 13;
-            grid-row: 2 / 4;
-        }
-
-        .chart-card-3 {
-            grid-column: 8 / 13;
-            grid-row: 4 / 5;
-        }
-
-        .chart-placeholder {
-            height: 280px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        /* Bottom charts */
-        .bottom-chart-1 {
-            grid-column: 1 / 7;
-            grid-row: 5 / 6;
-        }
-
-        .bottom-chart-2 {
-            grid-column: 7 / 13;
-            grid-row: 5 / 6;
-        }
-
-        .sku-table-container {
-            height: 280px;
-            overflow-y: auto;
-        }
-
-        .sku-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .sku-table th, .sku-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sku-table th {
-            color: var(--title-color);
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            background: var(--card-bg-color);
-        }
-
-        .sku-table tr:hover {
-            background-color: rgba(0, 212, 255, 0.1);
-        }
-
-        .sku-table .rank {
-            color: var(--accent-color);
-            font-weight: 900;
-            width: 50px;
+            padding: 10px 6px 8px;
             text-align: center;
+            border: 1px solid rgba(31, 142, 255, 0.25);
+            background: linear-gradient(180deg, rgba(14, 91, 173, 0.32), rgba(2, 26, 68, 0.68));
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: "";
+            position: absolute; left: 20%; right: 20%; bottom: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+        .kpi-label { color: #8ec3e8; font-size: 12px; letter-spacing: 1px; }
+        .kpi-value { margin-top: 7px; color: var(--cyan); font-size: clamp(20px, 1.65vw, 31px); font-family: "DIN Alternate", monospace; text-shadow: 0 0 12px rgba(37, 230, 255, 0.55); white-space: nowrap; }
+        .kpi-unit { margin-left: 3px; color: var(--muted); font-size: 11px; }
+
+        .map-panel { display: grid; grid-template-rows: 40px minmax(0, 1fr); }
+        .map-content { position: relative; min-height: 0; }
+        #mapChart { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .map-glow { position: absolute; left: 18%; right: 18%; bottom: 7%; height: 18%; border-radius: 50%; background: rgba(18, 161, 255, 0.12); filter: blur(18px); pointer-events: none; }
+        .province-ranking {
+            position: absolute;
+            left: 14px; bottom: 15px;
+            width: 205px;
+            padding: 10px 12px;
+            border: 1px solid rgba(27, 155, 255, 0.35);
+            background: rgba(0, 17, 49, 0.75);
+            backdrop-filter: blur(5px);
+        }
+        .ranking-title { margin-bottom: 7px; color: var(--cyan); font-size: 12px; letter-spacing: 1px; }
+        .rank-row { display: grid; grid-template-columns: 25px 1fr auto; gap: 6px; padding: 5px 0; border-bottom: 1px dashed rgba(83, 158, 211, 0.15); font-size: 12px; }
+        .rank-no { color: var(--yellow); }
+        .rank-value { color: var(--cyan); }
+
+        .center-bottom { display: grid; grid-template-columns: 0.85fr 1fr 1.15fr; gap: 10px; min-height: 0; }
+        .mini-panel { min-height: 0; }
+
+        .sku-table-wrap { height: calc(100% - 40px); overflow: hidden; padding: 3px 10px 8px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { color: var(--cyan); font-size: 12px; font-weight: 500; text-align: left; padding: 8px 6px; border-bottom: 1px solid rgba(35, 170, 255, 0.34); }
+        td { padding: 7px 6px; color: #cde9fb; font-size: 12px; border-bottom: 1px dashed rgba(65, 136, 191, 0.18); }
+        .rank-badge { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #168cff, #003a8c); }
+        tr:nth-child(1) .rank-badge { background: linear-gradient(135deg, #ffd84a, #c17900); }
+        tr:nth-child(2) .rank-badge { background: linear-gradient(135deg, #9fcfff, #47739e); }
+        tr:nth-child(3) .rank-badge { background: linear-gradient(135deg, #ff9c52, #9f4816); }
+
+        .anomaly-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+        .summary-card { padding: 7px 4px 5px; text-align: center; border: 1px solid rgba(38, 143, 230, 0.25); background: var(--panel-deep); }
+        .summary-value { color: var(--cyan); font-size: 20px; font-family: monospace; }
+        .summary-label { margin-top: 4px; color: var(--muted); font-size: 10px; }
+        .summary-card.danger .summary-value { color: var(--red); }
+        .summary-card.ai .summary-value { color: var(--green); font-size: 15px; padding-top: 5px; }
+
+        .alarm-list { height: calc(100% - 40px); overflow-y: auto; padding: 8px; scrollbar-width: thin; scrollbar-color: var(--blue) transparent; }
+        .alarm-card {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 11px;
+            text-align: left;
+            color: inherit;
+            border: 1px solid rgba(37, 132, 212, 0.28);
+            background: rgba(1, 20, 53, 0.72);
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .alarm-card:hover, .alarm-card.active { transform: translateX(-3px); border-color: var(--cyan); box-shadow: inset 3px 0 var(--cyan), 0 0 16px rgba(0, 183, 255, 0.18); }
+        .alarm-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .severity { padding: 2px 7px; font-size: 11px; font-weight: 700; border-radius: 2px; }
+        .severity.P1 { color: #fff; background: rgba(255, 65, 90, 0.82); box-shadow: 0 0 10px rgba(255, 65, 90, 0.42); }
+        .severity.P2 { color: #2a1b00; background: var(--yellow); }
+        .alarm-time { color: var(--muted); font-size: 10px; }
+        .alarm-metric { margin-top: 8px; color: #e8f8ff; font-size: 14px; }
+        .alarm-data { display: flex; justify-content: space-between; margin-top: 7px; color: var(--muted); font-size: 11px; }
+        .change-down { color: var(--red); font-weight: 700; }
+        .change-up { color: var(--green); font-weight: 700; }
+        .analysis-state { margin-top: 7px; color: #79bfe8; font-size: 10px; }
+
+        .ai-panel-body { height: calc(100% - 40px); overflow-y: auto; padding: 11px; }
+        .ai-empty { display: grid; height: 100%; place-items: center; color: var(--muted); text-align: center; line-height: 1.8; }
+        .ai-summary-box { padding: 11px; border-left: 3px solid var(--cyan); background: rgba(9, 77, 143, 0.24); color: #e6f8ff; font-size: 13px; line-height: 1.65; }
+        .ai-section-title { margin: 13px 0 8px; color: var(--cyan); font-size: 12px; letter-spacing: 1px; }
+        .cause-item { margin-bottom: 8px; padding: 9px; border: 1px solid rgba(48, 143, 211, 0.22); background: rgba(1, 24, 58, 0.66); }
+        .cause-head { display: flex; justify-content: space-between; gap: 10px; color: #dff5ff; font-size: 12px; }
+        .confidence { color: var(--yellow); white-space: nowrap; }
+        .cause-evidence { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+        .action-item { position: relative; margin: 6px 0; padding-left: 16px; color: #bfe6fb; font-size: 12px; line-height: 1.5; }
+        .action-item::before { content: "›"; position: absolute; left: 2px; color: var(--green); font-weight: 700; }
+        .analyze-button { width: 100%; margin-top: 12px; padding: 9px; color: #001529; font-weight: 700; border: 0; background: linear-gradient(90deg, var(--blue), var(--cyan)); cursor: pointer; }
+        .analyze-button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .error-text { color: var(--red); font-size: 11px; line-height: 1.55; word-break: break-all; }
+
+        @media (max-width: 1280px) {
+            .dashboard-grid { grid-template-columns: 310px minmax(560px, 1fr); }
+            .right-column { grid-column: 1 / 3; grid-template-columns: 240px 1fr 1fr; grid-template-rows: 330px; }
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 900px) {
+            html, body { height: auto; }
+            body { overflow: auto; }
+            .dashboard-shell { padding: 8px; }
+            .dashboard-shell { height: auto; }
+            .dashboard-grid, .right-column { display: block; }
+            .panel, .kpi-grid, .center-bottom { margin-bottom: 10px; }
+            .left-column, .center-column, .right-column { display: block; }
+            .panel { min-height: 330px; }
+            .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+            .center-bottom { display: grid; grid-template-columns: 1fr; }
+            .top-header { clip-path: none; }
+            .header-time, .header-status { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="header">
-            <h1>GMALL 实时数据大屏</h1>
+<div class="dashboard-shell">
+    <header class="top-header">
+        <div class="header-status"><span class="status-dot"></span>实时链路运行中</div>
+        <div class="title-wrap">
+            <h1>GMALL 智能实时经营驾驶舱</h1>
+            <p>REAL-TIME DATA WAREHOUSE · AI ANOMALY ATTRIBUTION</p>
         </div>
-        <div class="grid-container">
-            <!-- KPIs -->
-            <div class="card-panel kpi-card"><div class="kpi-label">总用户数</div><div class="kpi-value" id="totalUsers">-</div></div>
-            <div class="card-panel kpi-card"><div class="kpi-label">总订单数</div><div class="kpi-value" id="totalOrders">-</div></div>
-            <div class="card-panel kpi-card"><div class="kpi-label">总交易额(万)</div><div class="kpi-value" id="totalAmount">-</div></div>
-            <div class="card-panel kpi-card"><div class="kpi-label">总支付数</div><div class="kpi-value" id="totalPayments">-</div></div>
-            <div class="card-panel kpi-card"><div class="kpi-label">总加购数</div><div class="kpi-value" id="totalCartAdds">-</div></div>
-            <div class="card-panel kpi-card"><div class="kpi-label">总访问量(PV)</div><div class="kpi-value" id="totalPV">-</div></div>
+        <div class="header-time" id="currentTime">--</div>
+    </header>
 
-            <!-- Map -->
-            <div class="card-panel map-card"><div class="card-title">各省份订单分布</div><div id="mapChart" class="map-placeholder"></div></div>
+    <main class="dashboard-grid">
+        <section class="column left-column">
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">核心指标趋势</span><span class="panel-tag">最近24小时</span></div>
+                <div id="trendChart" class="chart"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">渠道流量分布</span><span class="panel-tag">PV贡献</span></div>
+                <div id="channelDistributionChart" class="chart"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">实时搜索热词</span><span class="panel-tag">TOP 30</span></div>
+                <div id="keywordCloudChart" class="chart"></div>
+            </div>
+        </section>
 
-            <!-- Right side charts -->
-            <div class="card-panel chart-card-1"><div class="card-title">支付成功率</div><div id="paymentRateChart" class="chart-placeholder"></div></div>
-            <div class="card-panel chart-card-2"><div class="card-title">新老访客分布</div><div id="visitorDistributionChart" class="chart-placeholder"></div></div>
-            <div class="card-panel chart-card-3"><div class="card-title">热搜关键词</div><div id="keywordCloudChart" class="chart-placeholder"></div></div>
-            
-            <!-- Bottom charts -->
-            <div class="card-panel bottom-chart-1"><div class="card-title">渠道来源分布</div><div id="channelDistributionChart" class="chart-placeholder"></div></div>
-            <div class="card-panel bottom-chart-2">
-                <div class="card-title">热销商品 TOP 5</div>
-                <div class="sku-table-container">
-                    <table class="sku-table">
-                        <thead>
-                            <tr>
-                                <th class="rank">排名</th>
-                                <th>商品名称</th>
-                                <th>订单金额(万)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="topSkuTableBody"></tbody>
-                    </table>
+        <section class="column center-column">
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="kpi-label">累计用户</div><div class="kpi-value" id="totalUsers">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">订单用户</div><div class="kpi-value" id="totalOrders">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">交易金额</div><div class="kpi-value" id="totalAmount">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">支付用户</div><div class="kpi-value" id="totalPayments">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">加购用户</div><div class="kpi-value" id="totalCartAdds">-</div></div>
+                <div class="kpi-card"><div class="kpi-label">页面浏览量</div><div class="kpi-value" id="totalPV">-</div></div>
+            </div>
+
+            <div class="panel map-panel">
+                <div class="panel-header"><span class="panel-title">全国实时订单热力</span><span class="panel-tag">省份订单分布</span></div>
+                <div class="map-content">
+                    <div class="map-glow"></div>
+                    <div id="mapChart"></div>
+                    <div class="province-ranking">
+                        <div class="ranking-title">省份订单 TOP 5</div>
+                        <div id="provinceRanking"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <script th:inline="none">
-        const API_BASE_URL = '/api';
-        let instances; // Declare instances in a broader scope
+            <div class="center-bottom">
+                <div class="panel mini-panel">
+                    <div class="panel-header"><span class="panel-title">支付转化</span></div>
+                    <div id="paymentRateChart" class="chart"></div>
+                </div>
+                <div class="panel mini-panel">
+                    <div class="panel-header"><span class="panel-title">访客结构</span></div>
+                    <div id="visitorDistributionChart" class="chart"></div>
+                </div>
+                <div class="panel mini-panel">
+                    <div class="panel-header"><span class="panel-title">热销商品榜</span><span class="panel-tag">TOP 5</span></div>
+                    <div class="sku-table-wrap">
+                        <table>
+                            <thead><tr><th>排名</th><th>商品</th><th>订单金额</th></tr></thead>
+                            <tbody id="topSkuTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        // Formatters
-        const formatNumber = num => num ? num.toLocaleString() : '-';
-        const formatAmount = num => num ? (num / 10000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
+        <section class="column right-column">
+            <div class="anomaly-summary">
+                <div class="summary-card"><div class="summary-value" id="anomalyTotal">-</div><div class="summary-label">24H异常</div></div>
+                <div class="summary-card danger"><div class="summary-value" id="anomalyP1">-</div><div class="summary-label">P1告警</div></div>
+                <div class="summary-card"><div class="summary-value" id="anomalyPending">-</div><div class="summary-label">待归因</div></div>
+                <div class="summary-card ai"><div class="summary-value" id="aiStatus">-</div><div class="summary-label">AI服务</div></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">实时异常告警</span><span class="panel-tag">点击查看详情</span></div>
+                <div class="alarm-list" id="anomalyList"><div class="ai-empty">正在加载告警...</div></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">AI 智能归因</span><span class="panel-tag" id="analysisModel">EVIDENCE BASED</span></div>
+                <div class="ai-panel-body" id="analysisPanel">
+                    <div class="ai-empty">选择一条异常查看 AI 归因<br>模型只使用聚合指标与维度证据</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
 
-        // API fetch functions
-        const fetchData = async (url, chartName) => {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    console.error(`Failed to fetch data for ${chartName}: HTTP ${response.status}`);
-                    return null;
-                }
-                const data = await response.json();
-                console.log(`Successfully fetched data for ${chartName}:`, data);
-                return data;
-            } catch (error) {
-                console.error(`Error fetching from ${url} for ${chartName}:`, error);
-                return null;
-            }
-        };
+<script th:inline="none">
+    const API_BASE_URL = '/api';
+    const instances = {};
+    let anomalySummary = null;
+    let anomalyRows = [];
+    let selectedAnomalyId = null;
 
-        // Enhanced chart configurations
-        const chartTheme = {
-            backgroundColor: 'transparent',
-            textStyle: { color: '#e0e6ed' },
-            title: { textStyle: { color: '#00d4ff', fontSize: 16, fontWeight: 'bold' } },
-            legend: { textStyle: { color: '#e0e6ed', fontSize: 12 } },
-            tooltip: {
-                backgroundColor: 'rgba(16, 22, 58, 0.9)',
-                borderColor: '#00d4ff',
-                borderWidth: 1,
-                textStyle: { color: '#e0e6ed' }
-            }
-        };
+    const colors = {
+        cyan: '#25e6ff', blue: '#168cff', green: '#31f5a6', yellow: '#ffd84a',
+        red: '#ff6074', text: '#d7efff', muted: '#72a8cf', grid: 'rgba(64,150,216,.15)'
+    };
 
-        // Render functions - now accept instances as an argument where needed
-        async function updateOverallData() {
-            const data = await fetchData(`${API_BASE_URL}/dashboard/overall`, 'Overall KPIs');
-            if (!data) return;
-            document.getElementById('totalUsers').textContent = formatNumber(data.totalUsers);
-            document.getElementById('totalOrders').textContent = formatNumber(data.totalOrders);
-            document.getElementById('totalAmount').textContent = formatAmount(data.totalAmount);
-            document.getElementById('totalPayments').textContent = formatNumber(data.totalPayments);
-            document.getElementById('totalCartAdds').textContent = formatNumber(data.totalCartAdds);
-            document.getElementById('totalPV').textContent = formatNumber(data.totalPV);
+    const baseOption = {
+        backgroundColor: 'transparent',
+        textStyle: { color: colors.text, fontFamily: 'Microsoft YaHei' },
+        tooltip: { backgroundColor: 'rgba(1,18,49,.94)', borderColor: colors.cyan, textStyle: { color: colors.text } }
+    };
+
+    const escapeHtml = value => String(value == null ? '' : value)
+        .split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;')
+        .split('"').join('&quot;').split("'").join('&#039;');
+    const rowValue = (row, key) => row ? (row[key] !== undefined ? row[key] : row[key.toUpperCase()]) : null;
+    const formatNumber = value => Number(value || 0).toLocaleString('zh-CN');
+    const formatAmount = value => Number(value || 0) >= 10000
+        ? `${(Number(value) / 10000).toFixed(2)}万` : Number(value || 0).toFixed(0);
+
+    async function fetchData(url, label) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error(`${label} load failed:`, error);
+            return null;
         }
+    }
 
-        async function renderMap(instances) {
-            const data = await fetchData(`${API_BASE_URL}/dashboard/map`, 'Map');
-            if (!data) return;
-            const maxValue = Math.max(...data.map(item => item.value)) || 1;
-            const option = {
-                ...chartTheme,
-                tooltip: { 
-                    trigger: 'item', 
-                    formatter: '{b}<br/>订单数: {c}',
-                    backgroundColor: 'rgba(16, 22, 58, 0.9)',
-                    borderColor: '#00d4ff',
-                    textStyle: { color: '#e0e6ed' }
-                },
-                visualMap: { 
-                    min: 0, 
-                    max: maxValue, 
-                    left: 'left', 
-                    top: 'bottom',
-                    text: ['高', '低'], 
-                    calculable: true,
-                    inRange: { 
-                        color: ['#003366', '#0066cc', '#00ccff', '#00ffcc', '#66ff66'] 
-                    },
-                    textStyle: { color: '#e0e6ed' },
-                    itemWidth: 20,
-                    itemHeight: 200
-                },
-                series: [{
-                    name: '订单数',
-                    type: 'map',
-                    map: 'china',
-                    roam: true,
-                    zoom: 1.2,
-                    label: {
-                        show: true,
-                        color: '#e0e6ed',
-                        fontSize: 10
-                    },
-                    itemStyle: {
-                        borderColor: '#00d4ff',
-                        borderWidth: 1,
-                        areaColor: 'rgba(0, 100, 200, 0.3)'
-                    },
-                    emphasis: {
-                        label: { color: '#00ff88', fontSize: 12 },
-                        itemStyle: { areaColor: 'rgba(0, 255, 136, 0.5)' }
-                    },
-                    data: data
-                }]
-            };
-            instances.map.setOption(option);
-        }
+    function updateClock() {
+        document.getElementById('currentTime').textContent = new Date().toLocaleString('zh-CN', { hour12: false });
+    }
 
-        async function renderTopSkuTable() {
-            const data = await fetchData(`${API_BASE_URL}/charts/topN?tableName=dws_trade_sku_order_window&groupBy=sku_name&aggField=order_amount&aggFunc=SUM&topN=5`, 'Top SKU');
-            if (!data) return;
-            const tableBody = document.getElementById('topSkuTableBody');
-            tableBody.innerHTML = data.map((item, index) => `
-                <tr>
-                    <td class="rank">${index + 1}</td>
-                    <td>${item.name}</td>
-                    <td>${formatAmount(item.value)}</td>
-                </tr>
-            `).join('');
-        }
+    async function updateOverallData() {
+        const data = await fetchData(`${API_BASE_URL}/dashboard/overall`, 'overall');
+        if (!data) return;
+        document.getElementById('totalUsers').textContent = formatNumber(data.totalUsers);
+        document.getElementById('totalOrders').textContent = formatNumber(data.totalOrders);
+        document.getElementById('totalAmount').textContent = formatAmount(data.totalAmount);
+        document.getElementById('totalPayments').textContent = formatNumber(data.totalPayments);
+        document.getElementById('totalCartAdds').textContent = formatNumber(data.totalCartAdds);
+        document.getElementById('totalPV').textContent = formatNumber(data.totalPV);
+    }
 
-        async function renderChannelDistributionChart(instances) {
-            const data = await fetchData(`${API_BASE_URL}/charts/distribution?tableName=dws_traffic_vc_ch_ar_is_new_page_view_window&groupBy=ch&valueField=pv_ct`, 'Channel Distribution');
-            if (!data) return;
-            const option = {
-                ...chartTheme,
-                tooltip: { 
-                    trigger: 'item', 
-                    formatter: '{b}: {c} ({d}%)',
-                    backgroundColor: 'rgba(16, 22, 58, 0.9)'
-                },
-                legend: { 
-                    orient: 'vertical', 
-                    left: 'left', 
-                    textStyle: { 
-                        color: '#e0e6ed', 
-                        fontSize: 11 
-                    },
-                    itemWidth: 12,
-                    itemHeight: 12
-                },
-                series: [{
-                    name: '渠道来源',
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['60%', '50%'],
-                    avoidLabelOverlap: true,
-                    label: {
-                        show: true,
-                        color: '#e0e6ed',
-                        fontSize: 10,
-                        formatter: '{b}\n{c}人\n{d}%'
-                    },
-                    emphasis: { 
-                        label: { 
-                            show: true, 
-                            fontSize: 12, 
-                            fontWeight: 'bold',
-                            color: '#00ff88'
-                        },
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    },
-                    itemStyle: {
-                        borderRadius: 5,
-                        borderColor: '#0a0e27',
-                        borderWidth: 2
-                    },
-                    data: data.map((item, index) => ({
-                        ...item,
-                        itemStyle: {
-                            color: [
-                                '#00d4ff', '#00ff88', '#ff6b6b', '#4ecdc4', 
-                                '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'
-                            ][index % 8]
-                        }
-                    }))
-                }]
-            };
-            instances.channel.setOption(option);
-        }
-
-        async function renderPaymentRateChart(instances) {
-            const data = await fetchData(`${API_BASE_URL}/dashboard/payment-success-rate`, 'Payment Rate');
-            if (!data) return;
-            const rate = data.rate.toFixed(2);
-            const option = {
-                ...chartTheme,
-                series: [{
-                    type: 'gauge',
-                    startAngle: 180,
-                    endAngle: 0,
-                    min: 0,
-                    max: 100,
-                    splitNumber: 10,
-                    radius: '80%',
-                    center: ['50%', '70%'],
-                    axisLine: {
-                        lineStyle: {
-                            width: 20,
-                            color: [
-                                [0.3, '#ff6b6b'],
-                                [0.7, '#f39c12'],
-                                [1, '#00ff88']
-                            ]
-                        }
-                    },
-                    pointer: {
-                        itemStyle: {
-                            color: '#00d4ff',
-                            shadowColor: 'rgba(0, 212, 255, 0.5)',
-                            shadowBlur: 10
-                        }
-                    },
-                    axisTick: {
-                        length: 12,
-                        lineStyle: {
-                            color: 'auto',
-                            width: 2
-                        }
-                    },
-                    splitLine: {
-                        length: 20,
-                        lineStyle: {
-                            color: 'auto',
-                            width: 3
-                        }
-                    },
-                    axisLabel: {
-                        color: '#e0e6ed',
-                        fontSize: 10,
-                        distance: -50,
-                        formatter: '{value}%'
-                    },
-                    title: {
-                        offsetCenter: [0, '-20%'],
-                        fontSize: 14,
-                        color: '#00d4ff'
-                    },
-                    detail: {
-                        fontSize: 24,
-                        offsetCenter: [0, '10%'],
-                        valueAnimation: true,
-                        formatter: '{value}%',
-                        color: rate > 80 ? '#00ff88' : rate > 60 ? '#f39c12' : '#ff6b6b',
-                        fontWeight: 'bold'
-                    },
-                    data: [{
-                        value: rate,
-                        name: '支付成功率'
-                    }]
-                }]
-            };
-            instances.paymentRate.setOption(option);
-        }
-
-        async function renderVisitorDistributionChart(instances) {
-            const data = await fetchData(`${API_BASE_URL}/charts/distribution?tableName=dws_traffic_vc_ch_ar_is_new_page_view_window&groupBy=is_new&valueField=uv_ct`, 'Visitor Distribution');
-            if (!data) return;
-            const option = {
-                ...chartTheme,
-                tooltip: { 
-                    trigger: 'item', 
-                    formatter: '{b}: {c} ({d}%)',
-                    backgroundColor: 'rgba(16, 22, 58, 0.9)'
-                },
-                series: [{
-                    name: '访客类型',
-                    type: 'pie',
-                    radius: ['50%', '80%'],
-                    center: ['50%', '50%'],
-                    avoidLabelOverlap: true,
-                    label: {
-                        show: true,
-                        color: '#e0e6ed',
-                        fontSize: 12,
-                        formatter: '{b}\n{c}人\n{d}%'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: 14,
-                            fontWeight: 'bold',
-                            color: '#00ff88'
-                        },
-                        itemStyle: {
-                            shadowBlur: 15,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.8)'
-                        }
-                    },
-                    itemStyle: {
-                        borderRadius: 8,
-                        borderColor: '#0a0e27',
-                        borderWidth: 3
-                    },
-                    data: data.map(item => ({
-                        name: item.name === '1' ? '新访客' : '老访客',
-                        value: item.value,
-                        itemStyle: {
-                            color: item.name === '1' ? '#00ff88' : '#00d4ff'
-                        }
-                    }))
-                }]
-            };
-            instances.visitor.setOption(option);
-        }
-        
-        async function renderKeywordCloudChart(instances) {
-            const data = await fetchData(`${API_BASE_URL}/charts/topN?tableName=dws_traffic_source_keyword_page_view_window&groupBy=keyword&aggField=keyword_count&aggFunc=SUM&topN=30`, 'Keyword Cloud');
-            if (!data) return;
-            const option = {
-                ...chartTheme,
-                series: [{
-                    type: 'wordCloud',
-                    shape: 'circle',
-                    left: 'center', top: 'center',
-                    width: '100%', height: '100%',
-                    right: null, bottom: null,
-                    sizeRange: [14, 50],
-                    rotationRange: [-45, 45],
-                    rotationStep: 15,
-                    gridSize: 8,
-                    drawOutOfBound: true, // Allow words to be drawn outside the container
-                    layoutAnimation: true,
-                    textStyle: {
-                        fontFamily: 'Orbitron, sans-serif',
-                        fontWeight: 'bold',
-                        color: function () {
-                            const colors = ['#00d4ff', '#00ff88', '#ff6b6b', '#4ecdc4', '#ffeaa7', '#dda0dd'];
-                            return colors[Math.floor(Math.random() * colors.length)];
-                        }
-                    },
-                    emphasis: { textStyle: { shadowBlur: 10, shadowColor: '#00d4ff', color: '#ffffff' } },
-                    data: data
-                }]
-            };
-            instances.keywordCloud.setOption(option);
-        }
-
-        // Initial load and scheduled refresh
-        function initDashboard(instances) { // Accept instances as argument
-            console.log("Initializing dashboard data fetch...");
-            
-            // Call render functions passing instances where needed
-            updateOverallData();
-            renderMap(instances);
-            renderTopSkuTable();
-            renderChannelDistributionChart(instances);
-            renderPaymentRateChart(instances);
-            renderVisitorDistributionChart(instances);
-            renderKeywordCloudChart(instances);
-
-            setInterval(() => {
-                updateOverallData();
-                renderMap(instances);
-                renderTopSkuTable();
-                renderChannelDistributionChart(instances);
-                renderPaymentRateChart(instances);
-                renderVisitorDistributionChart(instances);
-                renderKeywordCloudChart(instances);
-            }, 30000);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Declare and initialize instances here, after DOM is ready
-            instances = {
-                map: echarts.init(document.getElementById('mapChart')),
-                channel: echarts.init(document.getElementById('channelDistributionChart')),
-                paymentRate: echarts.init(document.getElementById('paymentRateChart')),
-                visitor: echarts.init(document.getElementById('visitorDistributionChart')),
-                keywordCloud: echarts.init(document.getElementById('keywordCloudChart'))
-            };
-
-            initDashboard(instances); // Pass instances to initDashboard
-
-            window.addEventListener('resize', () => {
-                for (const key in instances) {
-                    if (instances.hasOwnProperty(key) && instances[key] && typeof instances[key].resize === 'function') {
-                        instances[key].resize();
-                    }
-                }
-            });
+    async function renderTrendChart() {
+        const [orders, pv] = await Promise.all([
+            fetchData(`${API_BASE_URL}/dashboard/trend?metric=order_count&timeRange=24%20HOUR`, 'order trend'),
+            fetchData(`${API_BASE_URL}/dashboard/trend?metric=page_view&timeRange=24%20HOUR`, 'pv trend')
+        ]);
+        if (!orders || !pv) return;
+        const timeLabel = item => String(rowValue(item, 'stt')).replace('T', ' ').slice(5, 16);
+        const labels = Array.from(new Set([...orders, ...pv].map(timeLabel))).sort();
+        const toMap = data => Object.fromEntries(data.map(item => [timeLabel(item), Number(rowValue(item, 'value') || 0)]));
+        const orderMap = toMap(orders), pvMap = toMap(pv);
+        instances.trend.setOption({
+            ...baseOption,
+            legend: { top: 10, right: 12, textStyle: { color: colors.muted }, data: ['订单用户', '页面浏览'] },
+            grid: { left: 46, right: 24, top: 48, bottom: 32 },
+            tooltip: { ...baseOption.tooltip, trigger: 'axis' },
+            xAxis: { type: 'category', data: labels, axisLine: { lineStyle: { color: colors.grid } }, axisLabel: { color: colors.muted } },
+            yAxis: { type: 'value', splitLine: { lineStyle: { color: colors.grid } }, axisLabel: { color: colors.muted } },
+            series: [
+                { name: '订单用户', type: 'line', smooth: true, symbol: 'circle', symbolSize: 5, data: labels.map(x => orderMap[x] || 0), lineStyle: { color: colors.yellow, width: 2 }, itemStyle: { color: colors.yellow }, areaStyle: { color: 'rgba(255,216,74,.08)' } },
+                { name: '页面浏览', type: 'line', smooth: true, symbol: 'none', data: labels.map(x => pvMap[x] || 0), lineStyle: { color: colors.cyan, width: 2 }, areaStyle: { color: 'rgba(37,230,255,.12)' } }
+            ]
         });
-    </script>
+    }
+
+    async function renderChannelChart() {
+        const data = await fetchData(`${API_BASE_URL}/charts/distribution?tableName=dws_traffic_vc_ch_ar_is_new_page_view_window&groupBy=ch&valueField=pv_ct`, 'channel');
+        if (!data) return;
+        instances.channel.setOption({
+            ...baseOption,
+            tooltip: { ...baseOption.tooltip, trigger: 'item', formatter: '{b}<br/>PV：{c}<br/>占比：{d}%' },
+            legend: { type: 'scroll', bottom: 7, textStyle: { color: colors.muted, fontSize: 10 } },
+            series: [{ type: 'pie', radius: ['42%', '68%'], center: ['50%', '47%'], label: { color: colors.text, formatter: '{b}\n{d}%' }, labelLine: { lineStyle: { color: colors.muted } }, itemStyle: { borderColor: '#03132d', borderWidth: 2 }, data: data.map((item, index) => ({ name: rowValue(item, 'name'), value: rowValue(item, 'value'), itemStyle: { color: [colors.cyan, colors.blue, colors.green, colors.yellow, '#a66cff', '#ff7ac8'][index % 6] } })) }]
+        });
+    }
+
+    async function renderKeywordChart() {
+        const data = await fetchData(`${API_BASE_URL}/charts/topN?tableName=dws_traffic_source_keyword_page_view_window&groupBy=keyword&aggField=keyword_count&aggFunc=SUM&topN=30`, 'keyword');
+        if (!data) return;
+        instances.keyword.setOption({
+            ...baseOption,
+            tooltip: baseOption.tooltip,
+            series: [{ type: 'wordCloud', shape: 'circle', left: 'center', top: 'center', width: '94%', height: '90%', sizeRange: [12, 38], rotationRange: [-25, 25], gridSize: 8, textStyle: { color: () => [colors.cyan, colors.blue, colors.green, colors.yellow, '#8eb8ff'][Math.floor(Math.random() * 5)] }, emphasis: { textStyle: { shadowBlur: 12, shadowColor: colors.cyan } }, data: data.map(item => ({ name: rowValue(item, 'name'), value: rowValue(item, 'value') })) }]
+        });
+    }
+
+    async function renderMap() {
+        const data = await fetchData(`${API_BASE_URL}/dashboard/map`, 'map');
+        if (!data) return;
+        const normalized = data.map(item => ({ name: rowValue(item, 'name'), value: Number(rowValue(item, 'value') || 0) }));
+        const max = Math.max(...normalized.map(item => item.value), 1);
+        instances.map.setOption({
+            ...baseOption,
+            tooltip: { ...baseOption.tooltip, trigger: 'item', formatter: params => `${params.name}<br/>订单数：${formatNumber(params.value || 0)}` },
+            visualMap: { show: false, min: 0, max, inRange: { color: ['#073477', '#0b67c9', '#13bde4', '#46efff'] } },
+            geo: { map: 'china', roam: true, layoutCenter: ['57%', '50%'], layoutSize: '84%', label: { show: true, color: '#bceaff', fontSize: 9 }, itemStyle: { areaColor: '#0a4d9b', borderColor: '#35ddff', borderWidth: 1, shadowColor: 'rgba(0,207,255,.65)', shadowBlur: 15 }, emphasis: { label: { color: '#fff' }, itemStyle: { areaColor: '#0fd6ef' } } },
+            series: [{ type: 'map', geoIndex: 0, data: normalized }]
+        });
+        const ranking = [...normalized].sort((a, b) => b.value - a.value).slice(0, 5);
+        document.getElementById('provinceRanking').innerHTML = ranking.map((item, index) => `<div class="rank-row"><span class="rank-no">${index + 1}</span><span>${escapeHtml(item.name)}</span><span class="rank-value">${formatNumber(item.value)}</span></div>`).join('') || '<div class="panel-tag">暂无数据</div>';
+    }
+
+    async function renderPaymentChart() {
+        const data = await fetchData(`${API_BASE_URL}/dashboard/payment-success-rate`, 'payment');
+        if (!data) return;
+        const rate = Number(data.rate || 0);
+        instances.payment.setOption({
+            ...baseOption,
+            series: [{ type: 'gauge', startAngle: 210, endAngle: -30, min: 0, max: 100, radius: '84%', center: ['50%', '55%'], progress: { show: true, width: 12, itemStyle: { color: colors.cyan } }, axisLine: { lineStyle: { width: 12, color: [[1, 'rgba(42,129,196,.2)']] } }, axisTick: { show: false }, splitLine: { show: false }, axisLabel: { color: colors.muted, distance: -34, fontSize: 9 }, pointer: { show: false }, anchor: { show: false }, title: { offsetCenter: [0, '38%'], color: colors.muted, fontSize: 11 }, detail: { valueAnimation: true, offsetCenter: [0, '-4%'], formatter: '{value}%', color: colors.cyan, fontSize: 25 }, data: [{ value: rate.toFixed(2), name: '支付成功率' }] }]
+        });
+    }
+
+    async function renderVisitorChart() {
+        const data = await fetchData(`${API_BASE_URL}/charts/distribution?tableName=dws_traffic_vc_ch_ar_is_new_page_view_window&groupBy=is_new&valueField=uv_ct`, 'visitor');
+        if (!data) return;
+        instances.visitor.setOption({
+            ...baseOption,
+            tooltip: { ...baseOption.tooltip, trigger: 'item', formatter: '{b}<br/>{c}人（{d}%）' },
+            legend: { bottom: 8, textStyle: { color: colors.muted } },
+            series: [{ type: 'pie', radius: ['46%', '68%'], center: ['50%', '45%'], label: { show: false }, itemStyle: { borderColor: '#03132d', borderWidth: 3 }, data: data.map(item => ({ name: String(rowValue(item, 'name')) === '1' ? '新访客' : '老访客', value: rowValue(item, 'value'), itemStyle: { color: String(rowValue(item, 'name')) === '1' ? colors.green : colors.blue } })) }]
+        });
+    }
+
+    async function renderTopSku() {
+        const data = await fetchData(`${API_BASE_URL}/charts/topN?tableName=dws_trade_sku_order_window&groupBy=sku_name&aggField=order_amount&aggFunc=SUM&topN=5`, 'sku');
+        if (!data) return;
+        document.getElementById('topSkuTableBody').innerHTML = data.map((item, index) => `<tr><td><span class="rank-badge">${index + 1}</span></td><td title="${escapeHtml(rowValue(item, 'name'))}">${escapeHtml(String(rowValue(item, 'name')).slice(0, 15))}</td><td style="color:${colors.cyan}">${formatAmount(rowValue(item, 'value'))}</td></tr>`).join('');
+    }
+
+    async function loadAnomalies(preserveSelection = true) {
+        const [summary, anomalies] = await Promise.all([
+            fetchData(`${API_BASE_URL}/anomalies/summary`, 'anomaly summary'),
+            fetchData(`${API_BASE_URL}/anomalies?limit=30`, 'anomalies')
+        ]);
+        if (summary) {
+            anomalySummary = summary;
+            document.getElementById('anomalyTotal').textContent = summary.total24h;
+            document.getElementById('anomalyP1').textContent = summary.p1Count24h;
+            document.getElementById('anomalyPending').textContent = summary.pendingAnalysis;
+            document.getElementById('aiStatus').textContent = summary.aiAvailable ? 'ONLINE' : 'OFFLINE';
+        }
+        if (!anomalies) return;
+        anomalyRows = anomalies;
+        if (!preserveSelection || !anomalyRows.some(item => rowValue(item, 'anomaly_id') === selectedAnomalyId)) {
+            selectedAnomalyId = anomalyRows.length ? rowValue(anomalyRows[0], 'anomaly_id') : null;
+        }
+        renderAnomalyList();
+        if (selectedAnomalyId) await renderAnalysis(selectedAnomalyId);
+        else document.getElementById('analysisPanel').innerHTML = '<div class="ai-empty">当前没有异常事件</div>';
+    }
+
+    function metricLabel(code) {
+        return ({ order_user_count: '订单用户数', payment_success_user_count: '支付成功用户数', page_view_count: '页面浏览量' })[code] || code;
+    }
+
+    function renderAnomalyList() {
+        const container = document.getElementById('anomalyList');
+        if (!anomalyRows.length) {
+            container.innerHTML = '<div class="ai-empty">暂无异常告警<br>实时指标运行平稳</div>';
+            return;
+        }
+        container.innerHTML = anomalyRows.map(item => {
+            const id = rowValue(item, 'anomaly_id');
+            const change = Number(rowValue(item, 'change_rate') || 0) * 100;
+            const status = rowValue(item, 'analysis_status');
+            return `<button class="alarm-card ${id === selectedAnomalyId ? 'active' : ''}" data-id="${escapeHtml(id)}">
+                <div class="alarm-top"><span class="severity ${escapeHtml(rowValue(item, 'severity'))}">${escapeHtml(rowValue(item, 'severity'))}</span><span class="alarm-time">${escapeHtml(String(rowValue(item, 'created_at') || '').replace('T', ' '))}</span></div>
+                <div class="alarm-metric">${escapeHtml(metricLabel(rowValue(item, 'metric_code')))}</div>
+                <div class="alarm-data"><span>当前 ${formatNumber(rowValue(item, 'current_value'))} / 基线 ${Number(rowValue(item, 'baseline_value') || 0).toFixed(2)}</span><span class="${change >= 0 ? 'change-up' : 'change-down'}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</span></div>
+                <div class="analysis-state">${status === 'COMPLETED' ? '✓ AI归因已完成' : status === 'FAILED' ? '⚠ 归因失败，可重试' : '○ 等待AI归因'}</div>
+            </button>`;
+        }).join('');
+        container.querySelectorAll('.alarm-card').forEach(button => button.addEventListener('click', async () => {
+            selectedAnomalyId = button.dataset.id;
+            renderAnomalyList();
+            await renderAnalysis(selectedAnomalyId);
+        }));
+    }
+
+    async function renderAnalysis(anomalyId) {
+        const anomaly = anomalyRows.find(item => rowValue(item, 'anomaly_id') === anomalyId);
+        const status = rowValue(anomaly, 'analysis_status');
+        const panel = document.getElementById('analysisPanel');
+        let result = null;
+        if (status) result = await fetchData(`${API_BASE_URL}/anomalies/${encodeURIComponent(anomalyId)}/analysis`, 'analysis');
+        const analysis = result && (rowValue(result, 'analysis_json') || {});
+        const error = result && rowValue(result, 'error_message');
+        document.getElementById('analysisModel').textContent = result && rowValue(result, 'model_name') ? rowValue(result, 'model_name') : 'EVIDENCE BASED';
+
+        if (analysis && analysis.summary) {
+            const causes = Array.isArray(analysis.probableCauses) ? analysis.probableCauses : [];
+            const actions = Array.isArray(analysis.recommendedActions) ? analysis.recommendedActions : [];
+            panel.innerHTML = `<div class="ai-summary-box">${escapeHtml(analysis.summary)}</div>
+                <div class="ai-section-title">可能原因与置信度</div>
+                ${causes.map(cause => `<div class="cause-item"><div class="cause-head"><span>${escapeHtml(cause.cause)}</span><span class="confidence">${Math.round(Number(cause.confidence || 0) * 100)}%</span></div><div class="cause-evidence">${escapeHtml(cause.evidence)}</div></div>`).join('') || '<div class="cause-evidence">证据不足，暂无可靠原因。</div>'}
+                <div class="ai-section-title">建议动作</div>
+                ${actions.map(action => `<div class="action-item">${escapeHtml(action)}</div>`).join('') || '<div class="cause-evidence">暂无建议。</div>'}
+                <button class="analyze-button" id="reanalyzeButton">重新归因</button>`;
+        } else {
+            panel.innerHTML = `${error ? `<div class="error-text">${escapeHtml(error)}</div>` : '<div class="ai-empty" style="height:auto;padding:35px 0">该异常尚未生成 AI 归因</div>'}<button class="analyze-button" id="reanalyzeButton">${error ? '重试归因' : '立即归因'}</button>`;
+        }
+        const button = document.getElementById('reanalyzeButton');
+        if (button) {
+            button.disabled = !(anomalySummary && anomalySummary.aiAvailable);
+            button.addEventListener('click', () => analyzeAnomaly(anomalyId, button));
+        }
+    }
+
+    async function analyzeAnomaly(anomalyId, button) {
+        button.disabled = true;
+        button.textContent = 'AI 分析中...';
+        try {
+            const response = await fetch(`${API_BASE_URL}/anomalies/${encodeURIComponent(anomalyId)}/analyze`, { method: 'POST' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            await loadAnomalies(true);
+        } catch (error) {
+            button.disabled = false;
+            button.textContent = '归因失败，点击重试';
+            console.error('AI attribution failed:', error);
+        }
+    }
+
+    function initCharts() {
+        instances.trend = echarts.init(document.getElementById('trendChart'));
+        instances.channel = echarts.init(document.getElementById('channelDistributionChart'));
+        instances.keyword = echarts.init(document.getElementById('keywordCloudChart'));
+        instances.map = echarts.init(document.getElementById('mapChart'));
+        instances.payment = echarts.init(document.getElementById('paymentRateChart'));
+        instances.visitor = echarts.init(document.getElementById('visitorDistributionChart'));
+    }
+
+    async function refreshDashboard() {
+        await Promise.all([updateOverallData(), renderTrendChart(), renderChannelChart(), renderKeywordChart(), renderMap(), renderPaymentChart(), renderVisitorChart(), renderTopSku(), loadAnomalies(true)]);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        updateClock();
+        setInterval(updateClock, 1000);
+        initCharts();
+        await refreshDashboard();
+        setInterval(refreshDashboard, 30000);
+        window.addEventListener('resize', () => Object.values(instances).forEach(instance => instance.resize()));
+    });
+</script>
 </body>
 </html>

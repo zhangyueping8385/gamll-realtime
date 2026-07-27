@@ -25,6 +25,7 @@ import org.apache.flink.util.Collector;
 import org.example.realtime.base.BaseAPP;
 import org.example.realtime.bean.CartAddUuBean;
 import org.example.realtime.bean.TradePaymentBean;
+import org.example.realtime.bean.MetricWindowEvent;
 import org.example.realtime.constant.Constant;
 import org.example.realtime.function.DorisMapFunction;
 import org.example.realtime.util.DateFormatUtil;
@@ -84,6 +85,22 @@ public class DwsTradePaymentSucWindow extends BaseAPP {
 
         //7. 写出到Doris
         mappedStream.sinkTo(FlinkSinkUtil.getDorisSink(Constant.DORIS_DWS_TRADE_PAYMENT_SUC_WINDOW));
+
+        //8. 同步输出支付成功人数指标，供异常检测任务消费。
+        windowAndReduceStream
+                .map(bean -> MetricWindowEvent.builder()
+                        .metricCode("payment_success_user_count")
+                        .dimensionKey("GLOBAL")
+                        .dimensionsJson("{}")
+                        .stt(bean.getStt())
+                        .edt(bean.getEdt())
+                        .curDate(bean.getCurDate())
+                        .value(bean.getPaymentSucUniqueUserCount())
+                        .sourceTable(Constant.DORIS_DWS_TRADE_PAYMENT_SUC_WINDOW)
+                        .ts(System.currentTimeMillis())
+                        .build())
+                .map(JSONObject::toJSONString)
+                .sinkTo(FlinkSinkUtil.getKafkaSink(Constant.TOPIC_DWS_METRIC_WINDOW));
 
     }
 
